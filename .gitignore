@@ -1,0 +1,4 @@
+mount/postfix/**
+mount/letsencrypt/**
+mount/logs/**
+.env
