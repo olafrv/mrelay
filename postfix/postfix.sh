@@ -15,5 +15,9 @@ postconf -e smtpd_tls_key_file=/etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/pr
 # See /var/log/letsencrypt/letsencrypt.log for details
 bash /certbot.sh >/dev/null 2>&1
 
+# Add resolv.conf to Postfix chroot jail
+mkdir -p /var/spool/postfix/etc
+cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
+
 # Start Postfix in foreground
 postfix start-fg
