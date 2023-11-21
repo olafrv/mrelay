@@ -13,7 +13,7 @@ RUN chmod +x /postfix.sh
 COPY ./certbot.sh /
 RUN chmod +x /certbot.sh
 
-RUN echo "0 0 * * * /certbot.sh renew" | crontab -
+RUN echo "0 0 * * * /certbot.sh" | crontab -
 
 WORKDIR /etc/postfix
 RUN mv main.cf main.cf.bak
