@@ -60,8 +60,9 @@ Then run the following commands:
 systemctl restart ssh
 cd mrelay
 make postfix.start
-# make postfix.stop
+make postfix.sh  # enter the container shell
 make test  # after starting the tunnel on the local server
+# make postfix.stop
 ```	
 
 ## Configuration (Private Local Server)
@@ -70,5 +71,6 @@ Then run the following command:
 
 ```bash
 make tunnel.start
+make tunnel.sh  # enter the container shell
 # make tunnel.stop
 ```
