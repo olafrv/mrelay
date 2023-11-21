@@ -16,7 +16,6 @@ RUN chmod +x /certbot.sh
 RUN echo "0 0 * * * /certbot.sh" | crontab -
 
 WORKDIR /etc/postfix
-RUN mv main.cf main.cf.bak
 COPY ./main.conf ./main.cf
 
 WORKDIR /
