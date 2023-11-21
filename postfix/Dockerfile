@@ -19,4 +19,5 @@ WORKDIR /etc/postfix
 RUN mv main.cf main.cf.bak
 COPY ./main.conf ./main.cf
 
+WORKDIR /
 CMD ["/usr/bin/supervisord" , "-c", "/supervisord.conf"]
