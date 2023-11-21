@@ -1,6 +1,6 @@
 # Postfix Mail Relay
 
-# How it works?
+## How it works?
 
 * Remote Public Postfix Mail Relay Server:
   * Reachble via SMTP at `mail.example.com` with `10.10.10.10` private IP.
@@ -10,7 +10,7 @@
   * On `10.10.10.10:1025` -> SSH Reverse Tunnel (Linux/Docker) -> `mail.lan:25`.
   * The final destination is `mail.lan:25` mail server (STMP).
 
-# Configuration (Remote and Local Servers)
+## Configuration (Remote and Local Servers)
 
 Then download install the `mrelay` tool:
 
@@ -40,7 +40,7 @@ DOCKER_REGISTRY=registry.example.com:8092
 ```
 
 
-# Configuration (Remote Server)
+## Configuration (Remote Server)
 
 In the public remote mail server, add the following 
 settings to the `/etc/sshd/sshd_config` file:
@@ -64,7 +64,7 @@ make postfix.start
 make test  # after starting the tunnel on the local server
 ```	
 
-# Configuration (Private Local Server)
+## Configuration (Private Local Server)
 
 Then run the following command:
 
