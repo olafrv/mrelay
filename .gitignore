@@ -1,5 +1,13 @@
+# Docker Volumens
 mount/postfix/**
 mount/letsencrypt/**
 mount/logs/**
+
+# Environment
 .env
+
+# Backups
 *.tar.gz
+
+# SSH keys
+*id_rsa*

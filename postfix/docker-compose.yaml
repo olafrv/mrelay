@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  postfix:
+    image: ${DOCKER_REGISTRY}/mrelay_postfix:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mrelay_postfix
+    hostname: ${MRELAY_POSTFIX_HOSTNAME}
+    restart: always
+    env_file:
+      - ../.env
+    ports:
+      - "25:25"
+    volumes:
+      - ../mount/postfix:/var/spool/postfix
+      - ../mount/letsencrypt:/etc/letsencrypt
+      - ../mount/logs:/var/log
+  

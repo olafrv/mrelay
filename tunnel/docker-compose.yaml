@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  tunnel:
+    image: ${DOCKER_REGISTRY}/mrelay_tunnel:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mrelay_tunnel
+    restart: always
+    env_file:
+      - ../.env
+    volumes:
+      - ${MRELAY_TUNNEL_SSH_KEY}:/id_rsa.pem
