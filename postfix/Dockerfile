@@ -13,7 +13,7 @@ RUN chmod +x /postfix.sh
 COPY ./certbot.sh /
 RUN chmod +x /certbot.sh
 
-RUN echo "0 0 * * * /certbot.sh" | crontab -
+RUN echo "0 0 * * * /certbot.sh >/dev/null 2>&1" | crontab -
 
 WORKDIR /etc/postfix
 COPY ./main.conf ./main.cf
