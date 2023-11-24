@@ -18,5 +18,6 @@ echo "$(date) Starting SSH tunnel"
 ssh -i /id_rsa.pem -oStrictHostKeyChecking=no \
     -oServerAliveInterval=10 \
     -oServerAliveCountMax=3 \
+    -oExitOnForwardFailure=yes \
     -g -N -R ${MRELAY_TUNNEL_FORWARD} ${MRELAY_TUNNEL_SSH_URL}
 echo "$(date) SSH tunnel stopped"
