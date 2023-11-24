@@ -22,7 +22,11 @@ tunnel.stop:
 tunnel.sh:
 	docker exec -it mrelay_tunnel /bin/bash
 
-push:
+build:
+	docker build -t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
+	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
+
+push: build
 	docker push ${DOCKER_REGISTRY}/mrelay_postfix:latest
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
