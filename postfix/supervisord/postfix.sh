@@ -61,5 +61,9 @@ bash /certbot.sh >/dev/null 2>&1
 mkdir -p /var/spool/postfix/etc
 cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
+# postfix/postfix-script: fatal: Postfix integrity check failed!
+# postsuper: fatal: scan_dir_push: open directory defer: Permission denied
+postfix set-permissions
+
 # Start Postfix in foreground
 postfix start-fg

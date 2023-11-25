@@ -15,5 +15,6 @@ services:
     volumes:
       - ../mount/postfix:/var/spool/postfix
       - ../mount/letsencrypt:/etc/letsencrypt
+      - ../mount/opendkim:/etc/opendkim
       - ../mount/logs:/var/log
   

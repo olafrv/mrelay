@@ -76,3 +76,18 @@ make tunnel.start
 make tunnel.sh  # enter the container shell
 # make tunnel.stop
 ```
+
+# References
+
+* Checks
+  * https://mxtoolbox.com/
+  * https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/
+* SPF
+  * https://www.cloudflare.com/learning/dns/dns-records/dns-spf-record/
+  * https://www.mimecast.com/content/how-to-create-an-spf-txt-record/
+* DMARC relationship with others: 
+  * https://www.cloudflare.com/learning/dns/dns-records/dns-dkim-record/
+* DKIM: 
+  * https://www.cloudflare.com/learning/dns/dns-records/dns-dkim-record/
+* Tackling E-Mail Spoofing and Phishing: 
+  * https://blog.cloudflare.com/tackling-email-spoofing/

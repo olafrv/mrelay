@@ -1,6 +1,7 @@
 # Docker Volumens
 mount/postfix/**
 mount/letsencrypt/**
+mount/opendkim/**
 mount/logs/**
 
 # Environment
