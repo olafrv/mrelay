@@ -4,6 +4,9 @@ export
 env:
 	@ env | grep -E "MRELAY"
 
+postfix.daemon:
+	docker compose -f ./postfix/docker-compose.yaml up -d
+
 postfix.start:
 	docker compose -f ./postfix/docker-compose.yaml up -d --build
 
