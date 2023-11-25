@@ -33,7 +33,8 @@ fi
 postconf -e smtpd_tls_cert_file=/etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/fullchain.pem
 postconf -e smtpd_tls_key_file=/etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/privkey.pem
 
-
+# https://www.spamhaus.org/organization/dnsblusage/
+# https://www.spamhaus.org/whitepapers/dnsbl_function/
 # https://docs.spamhaus.com/datasets/docs/source/40-real-world-usage/MTAs/020-Postfix.html
 postconf -e "smtpd_restriction_classes = reject_spamhaus"
 if [ -z "${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}" ]

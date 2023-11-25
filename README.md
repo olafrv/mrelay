@@ -26,21 +26,21 @@ Create `.env` file with the following content:
 MRELAY_POSTFIX_DOMAIN=example.com
 MRELAY_POSTFIX_HOSTNAME=mail.example.com
 MRELAY_POSTFIX_RELAYHOST=[mail.example.lan]:25
-# Leave empty to disable postfix relayhost
+# Empty to disable relay and deliver at localhost
 # MRELAY_POSTFIX_RELAYHOST=
 MRELAY_POSTFIX_CERTBOT_CF_API_KEY=xxxxxxxxxxxxx
 MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT=30
 MRELAY_POSTFIX_CERTBOT_EMAIL=joe@example.com
-# See certbot cloudflare plugin docs
+# http://certbot-dns-cloudflare.readthedocs.io/en/stable/
 # MRELAY_POSTFIX_CERTBOT_FLAG=--dry-run
 MRELAY_POSTFIX_CERTBOT_FLAG=
+# https://www.spamhaus.com/free-trial/sign-up-for-a-free-data-query-service-account/
 MRELAY_POSTFIX_SPAMHAUS_DQS_KEY=xxxxxxxxxxxxx
 MRELAY_TUNNEL_SSH_URL=joe@mail.example.com
 MRELAY_TUNNEL_SSH_KEY=../id_rsa
 MRELAY_TUNNEL_FORWARD=10.10.10.10:1025:mail.example.lan:25
 DOCKER_REGISTRY=registry.example.com:8092
 ```
-
 
 ## Configuration (Remote Server)
 
