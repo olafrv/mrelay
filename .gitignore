@@ -8,6 +8,7 @@ mount/logs/**
 .env
 
 # Backups
+*.tar
 *.tar.gz
 
 # SSH keys
