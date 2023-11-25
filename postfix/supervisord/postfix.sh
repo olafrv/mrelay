@@ -14,6 +14,7 @@ postconf -e 'myhostname = $MRELAY_POSTFIX_HOSTNAME'
 
 # Set the the origin for outbound mails to "user@$mydomain"
 postconf -e 'myorigin = $mydomain'
+postconf -e 'masquerade_domains = $mydomain' # avoid FROM: user@mail.domain.com
 
 # Conditionally set the relayhost
 if [ -z "${MRELAY_POSTFIX_RELAYHOST}" ]
@@ -69,6 +70,23 @@ cat - > /etc/postfix/access_private_networks_unrestricted <<EOF
 192.168.0.0/16 OK
 EOF
 
+# Avoid external MAIL FROM (envelope sender) spoofing
+cat -> /etc/postfix/access_sender_no_spoofing <<EOF
+olafrv.com REJECT "No spoofing"
+mail.olafrv.com REJECT "No spoofing"
+EOF
+postmap /etc/postfix/access_sender_no_spoofing
+
+# Add SPF Policy python script to Postfix programs
+# See smtpd_*_restrictions in /etc/postfix/main.cf
+cat - >> /etc/postfix/master.cf <<EOF
+#
+# SPF Policy Check
+#
+policyd-spf  unix  -       n       n       -       0       spawn
+    user=policyd-spf argv=/usr/bin/policyd-spf
+EOF
+
 # Request a certificate from Let's Encrypt DNS-01 challenge
 # See /var/log/letsencrypt/letsencrypt.log for details
 bash /certbot.sh >/dev/null 2>&1
@@ -79,7 +97,7 @@ cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
 # postfix/postfix-script: fatal: Postfix integrity check failed!
 # postsuper: fatal: scan_dir_push: open directory defer: Permission denied
-postfix set-permissions
+# postfix set-permissions
 
 # Start Postfix in foreground
 postfix start-fg
