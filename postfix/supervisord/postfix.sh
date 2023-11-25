@@ -53,6 +53,22 @@ reject_spamhaus = reject_rbl_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zen.dq.sp
 EOF
 fi
 
+# Allow localhost to send mails (e.g. from/to 'root@localhost')
+# See smtpd_*_restrictions in /etc/postfix/main.cf
+cat - > /etc/postfix/access_localhost_unrestricted <<EOF
+127.0.0.1 OK
+::1 OK
+EOF
+postmap /etc/postfix/access_localhost_unrestricted
+
+# Allow the specified private networks to send mails (e.g. client wo/FQDN)
+# See smtpd_*_restrictions in /etc/postfix/main.cf
+cat - > /etc/postfix/access_private_networks_unrestricted <<EOF
+10.0.0.0/8 OK
+172.16.0.0/12 OK
+192.168.0.0/16 OK
+EOF
+
 # Request a certificate from Let's Encrypt DNS-01 challenge
 # See /var/log/letsencrypt/letsencrypt.log for details
 bash /certbot.sh >/dev/null 2>&1

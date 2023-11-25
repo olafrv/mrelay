@@ -1,7 +1,7 @@
 FROM ubuntu:23.04
 
 RUN apt-get update \
-    && apt-get install -y certbot cron postfix supervisor \
+    && apt-get install -y certbot cron postfix sendemail supervisor \
     htop vim iputils-ping dnsutils net-tools mailutils python3-certbot-dns-cloudflare \
     opendkim opendkim-tools rsyslog \
     && rm -rf /var/lib/apt/lists/*

@@ -31,7 +31,7 @@ push: build
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
 test:
-	bash test.sh
+	@ bash test.sh
 
 install:
 	bash install.sh
