@@ -16,37 +16,28 @@
 ## Configuration (Remote and Local Servers)
 
 Then download install the `mrelay` tool:
-
-```bash	
-apt update && apt install -y git make
+```bash
 git clone https://github.com/olafrv/mrelay.git
 cd mrelay
+make install.docker  # If you don't have it (latest official version)
 ```
 
-Create `.env` file with the following content:
+## Configuration (Public Remote Server)
 
-```bash
-MRELAY_POSTFIX_DOMAIN=example.com
-MRELAY_POSTFIX_HOSTNAME=mail.example.com
-MRELAY_POSTFIX_RELAYHOST=[mail.example.lan]:25
-# Empty to disable relay and deliver to localhost
-# MRELAY_POSTFIX_RELAYHOST=
-MRELAY_POSTFIX_CERTBOT_CF_API_KEY=xxxxxxxxxxxxx
-MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT=30
-MRELAY_POSTFIX_CERTBOT_EMAIL=joe@example.com
-# http://certbot-dns-cloudflare.readthedocs.io/en/stable/
-# MRELAY_POSTFIX_CERTBOT_FLAG=--dry-run
-MRELAY_POSTFIX_CERTBOT_FLAG=
-# https://www.spamhaus.com/free-trial/sign-up-for-a-free-data-query-service-account/
-MRELAY_POSTFIX_SPAMHAUS_DQS_KEY=xxxxxxxxxxxxx
-MRELAY_POSTFIX_DKIM_SELECTOR=default
-MRELAY_TUNNEL_SSH_URL=joe@mail.example.com
-MRELAY_TUNNEL_SSH_KEY=../id_rsa
-MRELAY_TUNNEL_FORWARD=10.10.10.10:1025:mail.example.lan:25
-DOCKER_REGISTRY=registry.example.com:8092
-```
+Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the variable content:
 
-## Configuration (Remote Server)
+| Variable                           | Example Value                        | Description                                                       |
+|------------------------------------|--------------------------------------|-------------------------------------------------------------------|
+| DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
+| MRELAY_POSTFIX_DOMAIN              | `example.com`                        | The domain name for the Postfix mail server.                      |
+| MRELAY_POSTFIX_HOSTNAME            | `mail.example.com`                   | The hostname (MX) for the Postfix mail server.                    |
+| MRELAY_POSTFIX_RELAYHOST           | `[mail.example.lan]:25` or empty     | The relay host of the Postfix mail server. Empty disables relay.  |
+| MRELAY_POSTFIX_CERTBOT_CF_API_KEY  | See *References* for deetails           | The Cloudflare API key for Certbot DNS authentication.            |
+| MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT | 30                                   | The wait time in seconds for Certbot DNS authentication.          |
+| MRELAY_POSTFIX_CERTBOT_EMAIL       | joe@example.com                      | The email address for Certbot cloudflare notifications.           |
+| MRELAY_POSTFIX_CERTBOT_FLAG        | e.g. `--dry-run` or empty            | Additional flags for Certbot.                                     |
+| MRELAY_POSTFIX_SPAMHAUS_DQS_KEY    | See *References* for details           | The Spamhaus Data Query Service (DQS) key for RBL rejection.      |
+| MRELAY_POSTFIX_DKIM_SELECTOR       | e.g. `default`                       | The DKIM selector for OpenDKIM signing/verification.              |
 
 In the public remote mail server, add the following 
 settings to the `/etc/sshd/sshd_config` file:
@@ -65,36 +56,77 @@ Then run the following commands:
 # service ssh restart
 systemctl restart ssh
 cd mrelay
-make postfix.daemon # start but not build
-make postfix.start  # start and (re-)build
-make postfix.sh     # enter the container shell
-make test           # after starting the tunnel
+make postfix.start  # start the container
+make postfix.sh     # enter the shell inside the container
+make dns            # to print DNS records needed for SPF and DKIM
+make test           # works only after starting the tunnel
 make postfix.stop   # stop the containers
+# make postfix.run  # build and run in foreground (development)
 ```	
 
 ## Configuration (Private Local Server)
 
+Create the `.env` file `VARIABLE=VALUE` even if `VALUE=` with the variable content:
+
+| Variable                           | Example Value                        | Description                                                       |
+|------------------------------------|--------------------------------------|-------------------------------------------------------------------|
+| DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
+| MRELAY_TUNNEL_SSH_URL              | joe@mail.example.com                 | The SSH URL for the tunnel from the private local rely server.    |
+| MRELAY_TUNNEL_SSH_KEY              | ../id_rsa                            | The SSH private key file to connect to the public server          |
+| MRELAY_TUNNEL_FORWARD              | 10.10.10.10:1025:mail.example.lan:25 | The port forwarding configuration for the tunnel.                 |
+
 Then run the following command:
 
 ```bash
-make tunnel.start
-make tunnel.sh  # enter the container shell
-# make tunnel.stop
+make tunnel.start  # start the container
+make tunnel.sh     # enter the shell inside the container
+make tunnel.stop   # stop the containers
+# make tunnel.run  # build and run in foreground (development)
 ```
 
 # References
 
-* Tackling E-Mail Spoofing and Phishing: 
-  * https://blog.cloudflare.com/tackling-email-spoofing/
-* Online Tools for Check mail server configuration:
-  * https://mxtoolbox.com/
-  * https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/
-* Sender Policy Framework (SPF):
-  * https://www.cloudflare.com/learning/dns/dns-records/dns-spf-record/
-  * https://www.mimecast.com/content/how-to-create-an-spf-txt-record/
-* DomainKeys Identified Mail (DKIM):
-  * https://www.cloudflare.com/learning/dns/dns-records/dns-dkim-record/
-  * https://linux.die.net/man/8/opendkim
-  * https://linux.die.net/man/5/opendkim.conf
-* Domain-based Message Authentication, Reporting & Conformance (DMARC): 
-  * https://www.cloudflare.com/learning/dns/dns-records/dns-dkim-record/
+## Certbot SSL Certificates (DNS Plugins)
+
+* https://certbot.eff.org/docs/using.html#dns-plugins
+* https://certbot-dns-cloudflare.readthedocs.io/en/stable/
+* https://letsencrypt.org/
+
+## OpenSSH Client and Server Configuration
+
+* https://man.openbsd.org/ssh_config
+* https://man.openbsd.org/sshd_config
+
+## Tackling E-Mail Spoofing and Phishing
+
+* https://blog.cloudflare.com/tackling-email-spoofing/
+
+## SPAMHAUS Data Query Service (DQS):
+
+* https://www.spamhaus.org/faq/section/DNSBL%20Usage
+* https://www.spamhaus.com/free-trial/sign-up-for-a-free-data-query-service-account/
+
+## Mail Server Checks (Online Tools)
+
+* https://mxtoolbox.com/
+* https://www.spf-record.com/
+* https://dmarc.org/resources/deployment-tools/
+
+## Sender Policy Framework (SPF)
+
+* https://www.cloudflare.com/learning/dns/dns-records/dns-spf-record/
+* https://datatracker.ietf.org/doc/html/rfc7208
+* https://www.spf-record.com/
+
+## DomainKeys Identified Mail (DKIM)
+
+* https://www.cloudflare.com/learning/dns/dns-records/dns-dkim-record/
+* https://linux.die.net/man/8/opendkim
+* https://linux.die.net/man/5/opendkim.conf
+* https://datatracker.ietf.org/doc/html/rfc6376
+
+## Domain-based Message Authentication, Reporting & Conformance (DMARC)
+
+* https://www.cloudflare.com/learning/dns/dns-records/dns-dkim-record/
+* https://dmarc.org/overview/
+* https://dmarc.org/resources/specification/
