@@ -31,7 +31,7 @@ build:
 	then \
 		docker buildx create --name multi-arch-builder; \
 	fi
-	docker buildx build --push --platform linux/amd64,linux/arm64 -t ${DOCKER_REGISTRY}/mrelay_postfix:amd64 ./postfix
+	docker buildx build --push --platform linux/amd64,linux/arm64 -t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
