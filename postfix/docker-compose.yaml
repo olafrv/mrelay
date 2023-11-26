@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postfix:
-    image: ${DOCKER_REGISTRY}/mrelay_postfix:${MRELAY_POSTFIX_ARCH}
+    image: ${DOCKER_REGISTRY}/mrelay_postfix:latest
     build:
       context: .
       dockerfile: Dockerfile
