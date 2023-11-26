@@ -5,7 +5,7 @@ env:
 	env | grep -E "MRELAY_" || echo "MRELAY_ variables not set." && exit 1
 
 postfix.image:
-	# https://github.com/docker/hub-feedback/issues/1925
+	@ # https://github.com/docker/hub-feedback/issues/1925
 	@ docker buildx imagetools inspect \
 		${DOCKER_REGISTRY}/mrelay_postfix:latest | grep -B2 "Platform:.*linux"
 
