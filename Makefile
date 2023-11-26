@@ -5,6 +5,7 @@ env:
 	@ env | grep -E "MRELAY"
 
 postfix.daemon:
+	docker pull ${DOCKER_REGISTRY}/mrelay_postfix:latest
 	docker compose -f ./postfix/docker-compose.yaml up -d
 
 postfix.start:
