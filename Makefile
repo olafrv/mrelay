@@ -2,12 +2,17 @@ include .env
 export
 
 env:
-	env | grep -E "MRELAY"
+	env | grep -E "MRELAY_" || echo "MRELAY_ variables not set." && exit 1
+
+postfix.image:
+	# https://github.com/docker/hub-feedback/issues/1925
+	@ docker buildx imagetools inspect \
+		${DOCKER_REGISTRY}/mrelay_postfix:latest | grep -B2 "Platform:.*linux"
 
 postfix.run:
 	docker compose -f ./postfix/docker-compose.yaml up --build
 
-postfix.start:
+postfix.start: postfix.image
 	docker pull ${DOCKER_REGISTRY}/mrelay_postfix:latest
 	docker compose -f ./postfix/docker-compose.yaml up -d
 
