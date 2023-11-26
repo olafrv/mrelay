@@ -26,11 +26,13 @@ tunnel.sh:
 	docker exec -it mrelay_tunnel /bin/bash
 
 build:
-	docker build -t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
+	if ! docker buildx ls | grep multi-arch-builder; \
+	then \
+		docker buildx create --name multi-arch-builder; \
+	fi
+	docker buildx build --push --platform linux/amd64 -t ${DOCKER_REGISTRY}/mrelay_postfix:amd64 ./postfix
+	docker buildx build --push --platform linux/arm64 -t ${DOCKER_REGISTRY}/mrelay_postfix:arm64 ./postfix
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
-
-push: build
-	docker push ${DOCKER_REGISTRY}/mrelay_postfix:latest
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
 test:
