@@ -40,6 +40,8 @@ build:
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
+push: build
+
 dns.dkim:
 	@ echo "--- DKIM ---"
 	@ echo "List of local DKIM public keys for '${MRELAY_POSTFIX_DOMAIN}':"
