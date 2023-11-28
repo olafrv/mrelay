@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e  # exit on error
+trap 'echo "Error on line $LINENO"' ERR
+
 # Required for cron jobs to work
 printenv | grep "^MRELAY_POSTFIX_" >> /etc/environment
 

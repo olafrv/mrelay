@@ -13,7 +13,11 @@ services:
     ports:
       - "25:25"
     volumes:
+      # Postfix chroot directory (required)
       - ../mount/postfix:/var/spool/postfix
+      # Let's Encrypt certificates (required)
       - ../mount/letsencrypt:/etc/letsencrypt
-      - ../mount/opendkim:/etc/opendkim
+      # DKIM private keys (required)
+      - ../mount/opendkim/keys:/etc/opendkim/keys
+      # Logs for audit purposes (optional)
       - ../mount/logs:/var/log

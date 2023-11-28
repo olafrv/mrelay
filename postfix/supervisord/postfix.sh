@@ -1,9 +1,16 @@
 #!/bin/bash
 
+set -e  # exit on error
+trap 'echo "Error on line $LINENO"' ERR
+
+source /supervisord/common.sh  # common functions
+
 # In the main.cf file, the following defaults rules apply:
 # mydomain => Defaults to $myhostname (without subdomain.)
 # myhostname => Defaults to FQDN gethostname() !!!
 # myorigin => Default to $myhostname (FQDN)
+
+log "Setting up Postfix..."
 
 # Set the hostname to the specified FQDN (gethostname() could be useless)
 postconf -e "MRELAY_POSTFIX_HOSTNAME=${MRELAY_POSTFIX_HOSTNAME}"  # set the hostname
@@ -93,33 +100,32 @@ custom_dmarc_milter=inet:localhost:9030
 # Enabled mail filters
 milter_protocol=6
 milter_default_action=accept
-#smtpd_milters=\${custom_dkim_milter}, \${custom_dmarc_milter}
-smtpd_milters=\${custom_dmarc_milter}
+smtpd_milters=\${custom_dkim_milter}, \${custom_dmarc_milter}
 non_smtpd_milters=\$smtpd_milters
 EOF
-
-# Request a certificate from Let's Encrypt DNS-01 challenge
-# See /var/log/letsencrypt/letsencrypt.log for details
-bash /certbot.sh >/dev/null 2>&1
 
 # Add resolv.conf to Postfix chroot jail
 mkdir -p /var/spool/postfix/etc
 cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 
+# Request a certificate from Let's Encrypt DNS-01 challenge
+# See /var/log/letsencrypt/letsencrypt.log for details
+log "Requesting certificate from Let's Encrypt..."
+bash /supervisord/certbot.sh >/dev/null 2>&1
+
 # postfix/postfix-script: fatal: Postfix integrity check failed!
 # postsuper: fatal: scan_dir_push: open directory defer: Permission denied
 # postfix set-permissions
 
+log "Checking Postfix config..."
 if /usr/sbin/postfix check
 then
-    echo "Postfix config OK"
+    log "Postfix config OK"
     # Call "postfix stop" when signaled SIGTERM
-    trap "{ echo Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
+    trap "{ log Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
     # Start postfix in foreground mode
     /usr/sbin/postfix -c /etc/postfix start-fg
 else
-    echo "Postfix config KO"
+    log "Postfix config error"
     exit 1
 fi
-
-

@@ -1,11 +1,14 @@
 #!/bin/bash
 
-set -e
+set -e  # exit on error
+trap 'echo "Error on line $LINENO"' ERR
+
+source /supervisord/common.sh  # common functions
 
 # http://www.trusteddomain.org/opendmarc/opendmarc.conf.5.html
 # https://github.com/trusteddomainproject/OpenDMARC/blob/master/opendmarc/opendmarc.conf.sample
 
-echo "$(date) - Setting up OpenDMARC..."
+log "Setting up OpenDMARC..."
 cat - > /etc/opendmarc/opendmarc.conf <<EOF
 AutoRestart                 false
 AuthservID                  ${MRELAY_POSTFIX_HOSTNAME}
@@ -23,8 +26,8 @@ TrustedAuthservIDs          ${MRELAY_POSTFIX_HOSTNAME}
 MilterDebug                 4
 EOF
 
-echo "$(date) - Initializing Public Suffix List..."
+log "Initializing Public Suffix List..."
 /supervisord/opendmarc-psl.sh
 
-echo "$(date) - Starting OpenDMARC..."
+log "Starting OpenDMARC..."
 exec $(which opendmarc) -f -c /etc/opendmarc/opendmarc.conf

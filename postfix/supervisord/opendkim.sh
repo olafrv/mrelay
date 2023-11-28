@@ -1,5 +1,10 @@
 #!/bin/bash
 
+set -e  # exit on error
+trap 'echo "Error on line $LINENO"' ERR
+
+source /supervisord/common.sh  # common functions
+
 DKIM_CONFIG=/etc/opendkim.conf
 DKIM_ETCDIR=/etc/opendkim
 DKIM_SELECTOR=${MRELAY_POSTFIX_DKIM_SELECTOR}
@@ -11,6 +16,7 @@ DKIM_TXTFILE=${DKIM_KEYSDIR}/${DKIM_SELECTOR}.txt
 # https://linux.die.net/man/8/opendkim
 # https://linux.die.net/man/5/opendkim.conf
 
+log "Creating DKIM config file '${DKIM_CONFIG}' ..."
 cat - > ${DKIM_CONFIG} <<EOF
 AutoRestart             false
 CaptureUnknownErrors    true
@@ -38,10 +44,10 @@ EOF
 if [ ! -f ${DKIM_KEYFILE} ]
 then
     mkdir -p ${DKIM_KEYSDIR}
-    echo "Generating DKIM key for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}' ..."
+    log "Generating DKIM key for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}' ..."
     opendkim-genkey -b 2048 -d ${DKIM_DOMAIN} -D ${DKIM_KEYSDIR} -s ${DKIM_SELECTOR} -v
 fi
-echo "DKIM TXT record for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}':"
+log "DKIM TXT record for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}':"
 cat ${DKIM_TXTFILE}
 
 chown -R opendkim:opendkim ${DKIM_ETCDIR}
@@ -50,13 +56,14 @@ chown opendkim:opendkim ${DKIM_CONFIG}
 opendkim-testkey -d ${DKIM_DOMAIN} -s ${DKIM_SELECTOR} -x ${DKIM_CONFIG} -vvv
 if [ $? -ne 0 ]
 then
-    echo "ERROR: DKIM key test failed for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}'"
+    log "ERROR: DKIM key test failed for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}'"
     echo "Mode v" >> ${DKIM_CONFIG}
-    echo "Starting opendkim (Mode: v) ..."
+    log "Set opendkim (Mode: v) ..."
 else
-    echo "DKIM key test succeeded for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}'"
+    log "DKIM key test succeeded for '${DKIM_DOMAIN}' selector '${DKIM_SELECTOR}'"
     echo "Mode sv" >> ${DKIM_CONFIG}
-    echo "Starting opendkim (Mode: sv) ..."
+    log "Set opendkim (Mode: sv) ..."
 fi
 
+log "Starting OpenDKIM ..."
 exec /usr/sbin/opendkim -f -x ${DKIM_CONFIG} -P /run/opendkim/opendkim.pid
