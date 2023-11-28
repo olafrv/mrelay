@@ -41,20 +41,24 @@ postconf -e smtpd_tls_key_file=/etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/pr
 # https://www.spamhaus.org/organization/dnsblusage/
 # https://www.spamhaus.org/whitepapers/dnsbl_function/
 # https://docs.spamhaus.com/datasets/docs/source/40-real-world-usage/MTAs/020-Postfix.html
-postconf -e "smtpd_restriction_classes = reject_spamhaus"
+postconf -e "smtpd_restriction_classes = reject_spamhaus_client, reject_spamhaus_helo, reject_spamhaus_sender"
 if [ -z "${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}" ]
 then
-    postconf -e "reject_spamhaus = permit"
+    postconf -e "reject_spamhaus_client ="
+    postconf -e "reject_spamhaus_helo ="
+    postconf -e "reject_spamhaus_sender ="
 else
     cat - >> /etc/postfix/main.cf <<EOF
-reject_spamhaus = reject_rbl_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zen.dq.spamhaus.net=127.0.0.[2..11]
-    , reject_rhsbl_sender ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
-    , reject_rhsbl_helo ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
+reject_spamhaus_client = 
+      reject_rbl_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zen.dq.spamhaus.net=127.0.0.[2..11]
     , reject_rhsbl_reverse_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
-    , reject_rhsbl_sender ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
-    , reject_rhsbl_helo ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
     , reject_rhsbl_reverse_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
-    , permit
+reject_spamhaus_helo =
+    , reject_rhsbl_helo ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
+    , reject_rhsbl_helo ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
+reject_spamhaus_sender =
+    , reject_rhsbl_sender ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
+    , reject_rhsbl_sender ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
 EOF
 fi
 
