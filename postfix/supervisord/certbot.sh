@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e  # exit on error
+trap 'echo "Error on line $LINENO"' ERR
+
 # Renew the certificate via certbot with the Cloudflare DNS plugin
 echo "dns_cloudflare_api_token=${MRELAY_POSTFIX_CERTBOT_CF_API_KEY}" \
  > /cloudflare.ini

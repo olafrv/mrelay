@@ -1,22 +1,67 @@
-FROM ubuntu:23.04
+FROM ubuntu:23.04 as base
 
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
-    && apt-get install -y cron certbot python3-certbot-dns-cloudflare postfix \
-    postfix-policyd-spf-python sendemail opendkim opendkim-tools supervisor \
-    rsyslog htop vim iputils-ping dnsutils net-tools mailutils locales \
+    && apt-get install -y \
+        locales supervisor cron rsyslog \
+        certbot python3-certbot-dns-cloudflare \
+        postfix postfix-policyd-spf-python opendkim opendkim-tools \
+        sendemail mailutils \
+        htop vim iputils-ping dnsutils net-tools curl \
     && locale-gen en_US.UTF-8 \
+    && update-locale LANG=en_US.UTF-8 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+FROM base as opendmarc
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y \
+        ca-certificates \
+        autoconf automake gcc g++ libc-dev libtool make \
+        libmilter-dev libmilter1.0.1 curl \
+    && update-ca-certificates \
+    && curl -fL -o /tmp/opendmarc.tar.gz \
+    https://github.com/trusteddomainproject/OpenDMARC/archive/refs/tags/rel-opendmarc-1-4-2.tar.gz \
+    && tar -xzf /tmp/opendmarc.tar.gz -C /tmp/ \
+    && cd /tmp/OpenDMARC-* \
+    && autoreconf -v -i \
+    && ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc/opendmarc \
+        # documentation will be deleted with rm -rf /tmp/OpenDMARC-*
+        --docdir=/tmp/opendmarc/doc \
+        --infodir=/tmp/opendmarc/info \
+        --mandir=/tmp/opendmarc/man \
+    && make \
+    && addgroup --system opendmarc \
+    && adduser --system --disabled-password --shell /sbin/nologin \
+        --no-create-home --home /run/opendmarc \
+        --ingroup opendmarc --gecos opendmarc \
+        opendmarc \
+    && adduser opendmarc mail \
+    && make install \
+    && install -d -o opendmarc -g opendmarc /run/opendmarc/ \
+    && install -d /usr/share/licenses/opendmarc/ \
+    && install -d /etc/opendmarc/conf.d/ \
+    && rm -rf /tmp/OpenDMARC-* \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM opendmarc as final
+
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 COPY ./supervisord/postfix-main.conf /etc/postfix/main.cf
-# COPY ./supervisord/postfix-master.conf /etc/postfix/master.cf  # saved for later
+RUN mkdir /supervisord
 COPY ./supervisord/*.sh /supervisord/
 RUN chmod +x /supervisord/*.sh
 RUN echo "0 0 * * * /supervisord/certbot.sh >/dev/null 2>&1" | crontab -
+RUN echo "0 1 * * * /supervisord/opendmarc-psl.sh >/var/log/opendmarc-psl.log 2>&1" | crontab -
 RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
+
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 WORKDIR /
 
