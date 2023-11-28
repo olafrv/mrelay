@@ -10,7 +10,7 @@ postfix.image:
 		${DOCKER_REGISTRY}/mrelay_postfix:latest | grep -B2 "Platform:.*linux"
 
 postfix.run:
-	docker compose -f ./postfix/docker-compose.yaml up --build
+	docker compose -f ./postfix/docker-compose.yaml up --build --remove-orphans
 
 postfix.start: postfix.image
 	docker pull ${DOCKER_REGISTRY}/mrelay_postfix:latest

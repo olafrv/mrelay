@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Pre-hooks for supervisord apps 
+# Required for cron jobs to work
+printenv | grep "^MRELAY_POSTFIX_" >> /etc/environment
 
+# Require for syslog to save logs to /var/log
 chown root:syslog /var/log
 chmod 775 /var/log
 
-# Start supervisord 
-
+# Start supervisord and services
 mkdir -p /var/log/supervisord
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf

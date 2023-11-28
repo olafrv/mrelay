@@ -17,4 +17,3 @@ services:
       - ../mount/letsencrypt:/etc/letsencrypt
       - ../mount/opendkim:/etc/opendkim
       - ../mount/logs:/var/log
-  

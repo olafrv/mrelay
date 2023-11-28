@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Required for the certbot cron job to work
-printenv | grep "^MRELAY_POSTFIX_" >> /etc/environment
-
 # In the main.cf file, the following defaults rules apply:
 # mydomain => Defaults to $myhostname (without subdomain.)
 # myhostname => Defaults to FQDN gethostname() !!!
@@ -87,6 +84,20 @@ policyd-spf  unix  -       n       n       -       0       spawn
     user=policyd-spf argv=/usr/bin/policyd-spf
 EOF
 
+# Mail Filters
+cat - >> /etc/postfix/main.cf <<EOF
+# Local filters
+# custom_spf_milter=inet:localhost:9010
+custom_dkim_milter=inet:localhost:9020
+custom_dmarc_milter=inet:localhost:9030
+# Enabled mail filters
+milter_protocol=6
+milter_default_action=accept
+#smtpd_milters=\${custom_dkim_milter}, \${custom_dmarc_milter}
+smtpd_milters=\${custom_dmarc_milter}
+non_smtpd_milters=\$smtpd_milters
+EOF
+
 # Request a certificate from Let's Encrypt DNS-01 challenge
 # See /var/log/letsencrypt/letsencrypt.log for details
 bash /certbot.sh >/dev/null 2>&1
@@ -99,5 +110,16 @@ cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
 # postsuper: fatal: scan_dir_push: open directory defer: Permission denied
 # postfix set-permissions
 
-# Start Postfix in foreground
-postfix start-fg
+if /usr/sbin/postfix check
+then
+    echo "Postfix config OK"
+    # Call "postfix stop" when signaled SIGTERM
+    trap "{ echo Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
+    # Start postfix in foreground mode
+    /usr/sbin/postfix -c /etc/postfix start-fg
+else
+    echo "Postfix config KO"
+    exit 1
+fi
+
+
