@@ -93,15 +93,23 @@ EOF
 
 # Mail Filters
 cat - >> /etc/postfix/main.cf <<EOF
+# https://www.postfix.org/MILTER_README.html
+
 # Local filters
 # custom_spf_milter=inet:localhost:9010
 custom_dkim_milter=inet:localhost:9020
 custom_dmarc_milter=inet:localhost:9030
+
 # Enabled mail filters
 milter_protocol=6
 milter_default_action=accept
 smtpd_milters=\${custom_dkim_milter}, \${custom_dmarc_milter}
 non_smtpd_milters=\$smtpd_milters
+
+# To sign Postfix's own bounce messages, enable filtering of 
+# internally-generated bounces and don't reject any internally-generated
+# bounces with non_smtpd_milters,  header_checks or body_checks
+internal_mail_filter_classes=bounce
 EOF
 
 # Add resolv.conf to Postfix chroot jail
