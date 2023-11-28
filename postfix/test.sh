@@ -35,7 +35,7 @@ sendemail $debug -f john.doe@gmail.com \
   -t $validUser@${MRELAY_POSTFIX_DOMAIN} \
   -u "Test - $(date)" -m "Test with make on $(date)" \
   -s localhost:25
-if [ $? -eq 0 ]; then echo "ERROR"; else echo "PASS"; fi  # Deny
+if [ $? -ne 0 ]; then echo "ERROR"; else echo "PASS"; fi  # Allowed p=none!
 read -p "Press enter..." enter
 
 echo
