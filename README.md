@@ -29,6 +29,7 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 | Variable                           | Example Value                        | Description                                                       |
 |------------------------------------|--------------------------------------|-------------------------------------------------------------------|
 | DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
+| MRELAY_TIMEZONE                    | `Europe/Stockholm`                   | The timezone for the container.                                   |
 | MRELAY_POSTFIX_DOMAIN              | `example.com`                        | The domain name for the Postfix mail server.                      |
 | MRELAY_POSTFIX_HOSTNAME            | `mail.example.com`                   | The hostname (MX) for the Postfix mail server.                    |
 | MRELAY_POSTFIX_RELAYHOST           | `[mail.example.lan]:25` or empty     | The relay host of the Postfix mail server. Empty disables relay.  |

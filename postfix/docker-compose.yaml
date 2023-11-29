@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        MRELAY_TIMEZONE: ${MRELAY_TIMEZONE}
     container_name: mrelay_postfix
     hostname: ${MRELAY_POSTFIX_HOSTNAME}
     restart: always
