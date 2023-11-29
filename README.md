@@ -15,7 +15,7 @@
 
 ## Configuration (Remote and Local Servers)
 
-Then download install the `mrelay` tool:
+Download install the `mrelay` tool:
 ```bash
 git clone https://github.com/olafrv/mrelay.git
 cd mrelay
