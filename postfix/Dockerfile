@@ -59,8 +59,8 @@ RUN apt-get update \
 
 ARG MRELAY_TIMEZONE
 ENV TZ=${MRELAY_TIMEZONE}
-RUN ln -snf /usr/share/zoneinfo/${TZ} \
-/etc/localtime && echo ${TZ} > /etc/timezone
+RUN ln -snf "/usr/share/zoneinfo/${TZ}" \
+/etc/localtime && echo "${TZ}" > /etc/timezone
 
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 COPY ./supervisord/postfix-main.conf /etc/postfix/main.cf

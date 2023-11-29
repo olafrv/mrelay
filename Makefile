@@ -2,7 +2,7 @@ include .env
 export
 
 env:
-	env | grep -E "MRELAY_" || echo "MRELAY_ variables not set." && exit 1
+	@ env | grep -E "MRELAY_" || (echo "MRELAY_ variables not set." && exit 1)
 
 postfix.image:
 	@ # https://github.com/docker/hub-feedback/issues/1925
@@ -40,8 +40,11 @@ build:
 	then \
 		docker buildx create --name multi-arch-builder; \
 	fi
-	# This is the way to build multi-arch images (amd64, arm64) they must be pushed to a registry
-	docker buildx build --push --platform linux/amd64,linux/arm64 -t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
+	# This is the way, build+push multi-arch images (amd64, arm64)
+	docker buildx build \
+		--build-arg "MRELAY_TIMEZONE=${MRELAY_TIMEZONE}" \
+		--push --platform linux/amd64,linux/arm64 \
+		-t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
