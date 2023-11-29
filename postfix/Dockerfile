@@ -43,9 +43,8 @@ RUN apt-get update \
     && adduser opendmarc mail \
     && make install \
     && install -d -o opendmarc -g opendmarc /run/opendmarc/ \
-    && install -d /usr/share/licenses/opendmarc/ \
     && install -d /etc/opendmarc/conf.d/ \
-    && rm -rf /tmp/OpenDMARC-* \
+    && rm -rf /tmp/OpenDMARC-* /tmp/opendmarc* \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
