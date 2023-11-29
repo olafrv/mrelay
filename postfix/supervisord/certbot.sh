@@ -3,6 +3,10 @@
 set -e  # exit on error
 trap 'echo "Error on line $LINENO"' ERR
 
+# Overwrite conflicting default installation cronjob
+echo "0 */12 * * * root /supervisord/certbot.sh >/dev/null 2>&1" \
+  > /etc/cron.d/certbot
+
 # Renew the certificate via certbot with the Cloudflare DNS plugin
 echo "dns_cloudflare_api_token=${MRELAY_POSTFIX_CERTBOT_CF_API_KEY}" \
  > /cloudflare.ini
