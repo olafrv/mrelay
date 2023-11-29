@@ -56,9 +56,6 @@ COPY ./supervisord/postfix-main.conf /etc/postfix/main.cf
 RUN mkdir /supervisord
 COPY ./supervisord/*.sh /supervisord/
 RUN chmod +x /supervisord/*.sh
-RUN echo "0 0 * * * /supervisord/certbot.sh >/dev/null 2>&1" | crontab -
-RUN echo "0 1 * * * /supervisord/opendmarc-psl.sh >/var/log/opendmarc-psl.log 2>&1" | crontab -
-RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
