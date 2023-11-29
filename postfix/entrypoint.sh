@@ -9,24 +9,21 @@ echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     >> /etc/environment
 
 # Required for cron jobs to work
+echo "SHELL=/bin/bash" >> /etc/environment
 printenv | grep "^MRELAY_POSTFIX_" >> /etc/environment
 
 # Require for syslog to save logs to /var/log
 chown root:syslog /var/log
 chmod 775 /var/log
 
+# Fix syslog socket complain in Docker
+if [ ! -e /var/spool/postfix/dev/log ]; then
+    mkdir -p /var/spool/postfix/dev
+    ln -s /dev/log /var/spool/postfix/dev/log
+fi
+
 # Kernel facility not available in Docker
 sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
-
-# Cronjobs
-sd=/supervisord
-echo "
-SHELL=/bin/bash
-# Certificate renewal via Cloudflare DNS (/var/log/letsencrypt)
-0 0 * * * $sd/certbot.sh >/dev/null 2>&1
-# OpenDMARC Public Suffix List update
-0 1 * * * $sd/opendmarc-psl.sh >/var/log/opendmarc-psl.log 2>&1
-" | crontab -
 
 # Start supervisord and services
 mkdir -p /var/log/supervisord
