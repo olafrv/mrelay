@@ -5,6 +5,13 @@ trap 'echo "Error on line $LINENO"' ERR
 
 source /supervisord/common.sh  # common functions
 
+# Potfix chroot jail (for readability)
+POSTFIX_CHROOT=/var/spool/postfix
+
+# Add resolv.conf to Postfix chroot jail
+mkdir -p ${POSTFIX_CHROOT}/etc
+cp /etc/resolv.conf ${POSTFIX_CHROOT}/etc/resolv.conf
+
 # In the main.cf file, the following defaults rules apply:
 # mydomain => Defaults to $myhostname (without subdomain.)
 # myhostname => Defaults to FQDN gethostname() !!!
@@ -13,52 +20,60 @@ source /supervisord/common.sh  # common functions
 log "Setting up Postfix..."
 
 # Set the hostname to the specified FQDN (gethostname() could be useless)
-postconf -e "MRELAY_POSTFIX_HOSTNAME=${MRELAY_POSTFIX_HOSTNAME}"  # set the hostname
+postconf -e "MRELAY_POSTFIX_HOSTNAME=${MRELAY_POSTFIX_HOSTNAME}"
 postconf -e 'myhostname = $MRELAY_POSTFIX_HOSTNAME'
 
-# Set the the origin for outbound mails to "user@$mydomain"
+# Do not use FQDN in FROM for outgoing mails (e.g @mail.domain.com)
 postconf -e 'myorigin = $mydomain'
-postconf -e 'masquerade_domains = $mydomain' # avoid FROM: user@mail.domain.com
+postconf -e 'masquerade_domains = $mydomain'  # Mask to: @domain.com
 
 # Conditionally set the relayhost
+pubdoms='$mydomain, $myhostname'  # public domains
+locdoms='localhost, localhost.localdomain, 127.0.0.1'  # local domains
 if [ -z "${MRELAY_POSTFIX_RELAYHOST}" ]
 then
     # Act as primary MX
-    postconf -e 'mydestination = $mydomain, $myhostname, localhost, localhost.localdomain, 127.0.0.1'
+
+    postconf -e "mydestination = $pubdoms, $locdoms"
 else
     # Act as relay MX
-    postconf -e "MRELAY_POSTFIX_RELAYHOST=${MRELAY_POSTFIX_RELAYHOST}"  # set the relayhost
-    postconf -e 'mydestination = localhost, localhost.localdomain, 127.0.0.1'
-    postconf -e 'relay_domains = $mydomain, $myhostname'
+    postconf -e "MRELAY_POSTFIX_RELAYHOST=${MRELAY_POSTFIX_RELAYHOST}"
+    postconf -e "mydestination = $locdoms" # local delivered
+    postconf -e "relay_domains = $pubdoms" # authorized relays
     postconf -e 'relayhost = $MRELAY_POSTFIX_RELAYHOST'
 fi
 
-
-# Set the certificate path for starttls
-postconf -e smtpd_tls_cert_file=/etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/fullchain.pem
-postconf -e smtpd_tls_key_file=/etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/privkey.pem
+# Set TLS certificates paths
+d='/etc/letsencrypt/live'  # Let's Encrypt Directory (Live)
+postconf -e "smtpd_tls_cert_file=${d}/${MRELAY_POSTFIX_DOMAIN}/fullchain.pem"
+postconf -e "smtpd_tls_key_file=${d}/${MRELAY_POSTFIX_DOMAIN}/privkey.pem"
 
 # https://www.spamhaus.org/organization/dnsblusage/
 # https://www.spamhaus.org/whitepapers/dnsbl_function/
-# https://docs.spamhaus.com/datasets/docs/source/40-real-world-usage/MTAs/020-Postfix.html
-postconf -e "smtpd_restriction_classes = reject_spamhaus_client, reject_spamhaus_helo, reject_spamhaus_sender"
-if [ -z "${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}" ]
+# https://docs.spamhaus.com/datasets/docs/source/40-real-world-usage/index.html
+classes="reject_spamhaus_client, reject_spamhaus_helo, reject_spamhaus_sender"
+postconf -e "smtpd_restriction_classes = $classes"
+if [ -z "${MRELAY_POSTFIX_SPAMHAUS_KEY}" ]
 then
     postconf -e "reject_spamhaus_client ="
     postconf -e "reject_spamhaus_helo ="
     postconf -e "reject_spamhaus_sender ="
 else
+    sph='dq.spamhaus.net'
+    zen="${MRELAY_POSTFIX_SPAMHAUS_KEY}.zen.${sph}"
+    dbl="${MRELAY_POSTFIX_SPAMHAUS_KEY}.dbl.${sph}"
+    zrd="${MRELAY_POSTFIX_SPAMHAUS_KEY}.zrd.${sph}"
     cat - >> /etc/postfix/main.cf <<EOF
 reject_spamhaus_client = 
-      reject_rbl_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zen.dq.spamhaus.net=127.0.0.[2..11]
-    , reject_rhsbl_reverse_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
-    , reject_rhsbl_reverse_client ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
+    , reject_rbl_client ${zen}=127.0.0.[2..11]
+    , reject_rhsbl_reverse_client ${dbl}=127.0.1.[2..99]
+    , reject_rhsbl_reverse_client ${zrd}=127.0.2.[2..24]
 reject_spamhaus_helo =
-    , reject_rhsbl_helo ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
-    , reject_rhsbl_helo ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
+    , reject_rhsbl_helo ${dbl}=127.0.1.[2..99]
+    , reject_rhsbl_helo ${zrd}=127.0.2.[2..24]
 reject_spamhaus_sender =
-    , reject_rhsbl_sender ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.dbl.dq.spamhaus.net=127.0.1.[2..99]
-    , reject_rhsbl_sender ${MRELAY_POSTFIX_SPAMHAUS_DQS_KEY}.zrd.dq.spamhaus.net=127.0.2.[2..24]
+    , reject_rhsbl_sender ${dbl}=127.0.1.[2..99]
+    , reject_rhsbl_sender ${zrd}=127.0.2.[2..24]
 EOF
 fi
 
@@ -95,6 +110,36 @@ policyd-spf  unix  -       n       n       -       0       spawn
     user=policyd-spf argv=/usr/bin/policyd-spf
 EOF
 
+# Save DMARC email reports to folder
+# for later processing by OpenDMARC
+dmarc_reports_dir=${POSTFIX_CHROOT}/opendmarc
+mkdir -p ${dmarc_reports_dir}
+chmod 770 ${dmarc_reports_dir}
+chown opendmarc:opendmarc ${dmarc_reports_dir}
+
+cat - > /etc/postfix/dmarc_mail_save.sh <<EOF
+#!/bin/bash
+ts=\$(date +%Y%m%d_%H%M%S)_\$RANDOM
+fp="${dmarc_reports_dir}/\${ts}_dmarc.eml"
+echo "to: \$fp"
+cat > "\$fp"
+EOF
+chmod +x /etc/postfix/dmarc_mail_save.sh
+
+cat - >> /etc/postfix/master.cf <<EOF
+#
+# DMARC Reports Save To Folder sScript
+#
+dmarc_transport unix - n n - - pipe flags=F 
+    user=opendmarc argv=/etc/postfix/dmarc_mail_save.sh
+EOF
+
+cat - >> /etc/postfix/dmarc_transport_map <<EOF
+dmarc@${MRELAY_POSTFIX_DOMAIN} dmarc_transport:
+EOF
+postmap /etc/postfix/dmarc_transport_map
+postconf -e "transport_maps = hash:/etc/postfix/dmarc_transport_map"
+
 # Mail Filters
 cat - >> /etc/postfix/main.cf <<EOF
 # https://www.postfix.org/MILTER_README.html
@@ -116,10 +161,6 @@ non_smtpd_milters=\$smtpd_milters
 internal_mail_filter_classes=bounce
 EOF
 
-# Add resolv.conf to Postfix chroot jail
-mkdir -p /var/spool/postfix/etc
-cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
-
 # Request a certificate from Let's Encrypt DNS-01 challenge
 # See /var/log/letsencrypt/letsencrypt.log for details
 log "Requesting certificate from Let's Encrypt..."
@@ -134,7 +175,7 @@ if /usr/sbin/postfix check
 then
     log "Postfix config OK"
     # Call "postfix stop" when signaled SIGTERM
-    trap "{ log Stopping postfix; /usr/sbin/postfix stop; exit 0; }" EXIT
+    trap "{ log 'Stopping postfix'; /usr/sbin/postfix stop; exit 0; }" EXIT
     # Start postfix in foreground mode
     /usr/sbin/postfix -c /etc/postfix start-fg
 else

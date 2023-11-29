@@ -3,6 +3,7 @@
 # set -x # echo on
 # debug="-v"
 validUser=admin # != postmaster
+dmarcUser=dmarc # != postmaster
 
 echo "EXTERNAL: Means from OUTSIDE the mail server"
 echo "INTERNAL: Means From INSIDE the mail server"
@@ -77,6 +78,16 @@ read -p "Press enter..." enter
 echo
 echo "INTERNAL: Insider (root) -> Local (root)..."
 docker exec -it mrelay_postfix /bin/bash -c "echo 'Test with make on $(date)' | mail -s 'Test - $(date)' root@localhost"
+if [ $? -ne 0 ]; then echo "ERROR"; else echo "PASS"; fi  # Allow
+read -p "Press enter..." enter
+
+echo
+echo "INTERNAL: Insider -> Local (dmarc)..."
+docker exec -it mrelay_postfix /bin/bash \
+  -c "sendemail $debug -f $validUser@${MRELAY_POSTFIX_DOMAIN} \
+  -t $dmarcUser@${MRELAY_POSTFIX_DOMAIN} \
+  -u 'Test - $(date)' -m 'Test with make on $(date)' \
+  -s localhost:25"
 if [ $? -ne 0 ]; then echo "ERROR"; else echo "PASS"; fi  # Allow
 read -p "Press enter..." enter
 
