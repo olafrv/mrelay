@@ -26,6 +26,18 @@ TrustedAuthservIDs          ${MRELAY_POSTFIX_HOSTNAME}
 MilterDebug                 4
 EOF
 
+log "Setting up OpenDMARC cronjobs..."
+
+echo "
+# OpenDMARC Public Suffix List (PSL) update
+0 1 * * * root /supervisord/opendmarc-psl.sh >/var/log/opendmarc-psl.log 2>&1
+" > /etc/cron.d/opendmarc-psl
+
+echo "
+# OpenDMARC Clean Up Older Reports
+0 2 * * * root find /var/spool/postfix/opendmarc/ -type f -mtime +7 -delete >/dev/null 2>&1
+" > /etc/cron.d/opendmarc-clean-up
+
 log "Initializing Public Suffix List..."
 /supervisord/opendmarc-psl.sh
 
