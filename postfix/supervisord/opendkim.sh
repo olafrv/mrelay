@@ -53,6 +53,7 @@ cat ${DKIM_TXTFILE}
 chown -R opendkim:opendkim ${DKIM_ETCDIR}
 chown opendkim:opendkim ${DKIM_CONFIG}
 
+chmod 600 ${DKIM_KEYFILE}
 opendkim-testkey -d ${DKIM_DOMAIN} -s ${DKIM_SELECTOR} -x ${DKIM_CONFIG} -vvv
 if [ $? -ne 0 ]
 then
