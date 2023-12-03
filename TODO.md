@@ -1,6 +1,5 @@
 # TODO
 
-- Change system timezone to Europe/Berlin.
 - AWS SMTP TCP/25 restriction case.
 - OpenDMARC rua+ruf processing and reporting.
 - OpenDMARC rua+ruf generation and send out for 3rd party.
