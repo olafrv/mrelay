@@ -16,6 +16,7 @@ chmod 600 /cloudflare.ini
 
 # Request new (or renew) the (existing) certificate
 certbot certonly ${MRELAY_POSTFIX_CERTBOT_FLAG} --no-self-upgrade \
+  --cert-name "${MRELAY_POSTFIX_DOMAIN}" \
   -d "${MRELAY_POSTFIX_DOMAIN}" -d "${MRELAY_POSTFIX_HOSTNAME}" \
   -m "${MRELAY_POSTFIX_CERTBOT_EMAIL}" \
   --dns-cloudflare --dns-cloudflare-credentials /cloudflare.ini \
