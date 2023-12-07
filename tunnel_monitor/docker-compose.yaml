@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  tunnel:
+    image: ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mrelay_tunnel_monitor
+    ports:
+      - 443:443
+    restart: always
+    env_file:
+      - ../.env
+    volumes:
+      # Let's Encrypt certificates (required)
+      - ../mount/letsencrypt:/etc/letsencrypt

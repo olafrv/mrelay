@@ -22,7 +22,7 @@ cd mrelay
 make install.docker  # If you don't have it (latest official version)
 ```
 
-## Configuration (Public Remote Server)
+## Environment Variables
 
 Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the variable content:
 
@@ -39,6 +39,14 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 | MRELAY_POSTFIX_CERTBOT_FLAG        | e.g. `--dry-run` or empty            | Additional flags for Certbot.                                     |
 | MRELAY_POSTFIX_SPAMHAUS_KEY        | See *References* for details         | Spamhaus Data Query Service (DQS) key for RBL rejection.          |
 | MRELAY_POSTFIX_DKIM_SELECTOR       | e.g. `default`                       | DKIM selector for OpenDKIM signing/verification.                  |
+| MRELAY_TUNNEL_SSH_URL              | joe@mail.example.com                 | The SSH URL for the tunnel from the private local rely server.    |
+| MRELAY_TUNNEL_SSH_KEY              | ../id_rsa                            | The SSH private key file to connect to the public server          |
+| MRELAY_TUNNEL_FORWARD              | 10.10.10.10:1025:mail.example.lan:25 | The port forwarding configuration for the tunnel.                 |
+
+
+## Configuration (Public Remote Server)
+
+### SSH Server Configuration
 
 In the public remote mail server, add the following 
 settings to the `/etc/sshd/sshd_config` file:
@@ -54,27 +62,39 @@ ClientAliveCountMax 3
 Then run the following commands:
 
 ```bash
-# service ssh restart
-systemctl restart ssh
+systemctl restart ssh       # or service ssh restart (apply previous changes)
+```
+
+### Postfix Server Configuration
+
+```bash	
+
 cd mrelay
-make postfix.start  # start the container
-make postfix.sh     # enter the shell inside the container
-make dns            # to print DNS records needed for SPF and DKIM
-make test           # works only after starting the tunnel
-make postfix.stop   # stop the containers
-# make postfix.run  # build and run in foreground (development)
+make postfix.start          # start the container
+make postfix.sh             # enter the shell inside the container
+make dns                    # to print DNS records needed for SPF and DKIM
+make test                   # works only after starting the tunnel
+make postfix.stop           # stop the containers
+# make postfix.run          # build and run in foreground (development)
 ```	
+
+### Tunnel Monitor Configuration
+
+```bash	
+make tunnel.monitor.start   # start the tunnel monitor (TCP open/close)
+make tunnel.monitor.stop    # stop the tunnel monitor
+make tunnel.sh              # enter the shell inside the container
+# make tunnel.monitor.run   # build and run in in foreground (development)
+```	
+
+The tunnel monitor can be accessed at `https://mail.example.com/index.html`.
+
+Its content will have `OK` or `ERROR` if the TCP port  `10.10.10.10:1025`
+is open or closed, respectively.
 
 ## Configuration (Private Local Server)
 
-Create the `.env` file `VARIABLE=VALUE` even if `VALUE=` with the variable content:
-
-| Variable                           | Example Value                        | Description                                                       |
-|------------------------------------|--------------------------------------|-------------------------------------------------------------------|
-| DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
-| MRELAY_TUNNEL_SSH_URL              | joe@mail.example.com                 | The SSH URL for the tunnel from the private local rely server.    |
-| MRELAY_TUNNEL_SSH_KEY              | ../id_rsa                            | The SSH private key file to connect to the public server          |
-| MRELAY_TUNNEL_FORWARD              | 10.10.10.10:1025:mail.example.lan:25 | The port forwarding configuration for the tunnel.                 |
+### Tunnel Client Configuration
 
 Then run the following command:
 

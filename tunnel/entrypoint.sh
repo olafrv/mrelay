@@ -1,7 +1,13 @@
 #!/bin/sh
 
+function log
+{
+    # timestamp format is ISO 8601 to match rsyslogd format
+    echo "$(date -u +"%Y-%m-%dT%H:%M:%S.%6N%:z") $0 - $1"
+}
+
 # SSH complains if wrong permissions on used files
-echo "$(date) Fixing permissions for private key file"
+log "Fixing permissions for private key file"
 chmod 600 /id_rsa.pem
 ls -l /id_rsa.pem
 md5sum /id_rsa.pem
@@ -15,10 +21,10 @@ md5sum /id_rsa.pem
 
 # Client Parameters to close unresponsive tunnels:
 # See details at https://man.openbsd.org/ssh_config
-echo "$(date) Starting SSH tunnel"
+log "Starting SSH tunnel"
 ssh -i /id_rsa.pem -oStrictHostKeyChecking=no \
     -oServerAliveInterval=10 \
     -oServerAliveCountMax=3 \
     -oExitOnForwardFailure=yes \
     -g -N -R ${MRELAY_TUNNEL_FORWARD} ${MRELAY_TUNNEL_SSH_URL}
-echo "$(date) SSH tunnel stopped"
+log "SSH tunnel stopped"

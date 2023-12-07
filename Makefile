@@ -14,7 +14,7 @@ postfix.run:
 
 postfix.start: postfix.image
 	docker pull ${DOCKER_REGISTRY}/mrelay_postfix:latest
-	docker compose -f ./postfix/docker-compose.yaml up -d
+	docker compose -f ./postfix/docker-compose.yaml up --detach
 
 postfix.stop:
 	docker compose -f ./postfix/docker-compose.yaml down
@@ -35,6 +35,19 @@ tunnel.stop:
 tunnel.sh:
 	docker exec -it mrelay_tunnel /bin/bash
 
+tunnel.monitor.run:
+	docker compose -f ./tunnel_monitor/docker-compose.yaml up --detach --build
+
+tunnel.monitor.start:
+	docker pull ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest
+	docker compose -f ./tunnel_monitor/docker-compose.yaml up --detach
+
+tunnel.monitor.stop:
+	docker compose -f ./tunnel_monitor/docker-compose.yaml down
+
+tunnel.monitor.sh:
+	docker exec -it mrelay_tunnel_monitor /bin/bash
+
 build:
 	if ! docker buildx ls | grep multi-arch-builder; \
 	then \
@@ -45,6 +58,9 @@ build:
 		--build-arg "MRELAY_TIMEZONE=${MRELAY_TIMEZONE}" \
 		--push --platform linux/amd64,linux/arm64 \
 		-t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
+	docker buildx build \
+		--push --platform linux/amd64,linux/arm64 \
+		-t ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest ./tunnel_monitor
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 
