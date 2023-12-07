@@ -78,6 +78,14 @@ make postfix.stop           # stop the containers
 # make postfix.run          # build and run in foreground (development)
 ```	
 
+To check the SSL certificates, run the following command:
+
+```bash
+make postfix.certs.list
+make postfix.certs.renew
+make postfix.certs.renew.force
+```
+
 ### Tunnel Monitor Configuration
 
 ```bash	
@@ -91,6 +99,12 @@ The tunnel monitor can be accessed at `https://mail.example.com/index.html`.
 
 Its content will have `OK` or `ERROR` if the TCP port  `10.10.10.10:1025`
 is open or closed, respectively.
+
+To check the SSL certificates, run the following command:
+
+```bash
+make tunnel.monitor.certs.check
+```
 
 ## Configuration (Private Local Server)
 
@@ -107,9 +121,10 @@ make tunnel.stop   # stop the containers
 
 # References
 
-## Certbot SSL Certificates (DNS Plugins)
+## Certbot SSL Certificates (and DNS Plugins)
 
-* https://certbot.eff.org/docs/using.html#dns-plugins
+* https://eff-certbot.readthedocs.io/en/latest/using.html#manual
+* https://eff-certbot.readthedocs.io/en/latest/using.html#dns-plugins
 * https://certbot-dns-cloudflare.readthedocs.io/en/stable/
 * https://letsencrypt.org/
 

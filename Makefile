@@ -22,6 +22,15 @@ postfix.stop:
 postfix.sh:
 	docker exec -it mrelay_postfix /bin/bash
 
+postfix.certs.list:
+	@ docker exec mrelay_postfix bash -c "certbot certificates"
+
+postfix.certs.renew:
+	@ docker exec mrelay_postfix bash -c "./supervisord/certbot.sh"
+
+postfix.certs.renew.force:
+	@ docker exec mrelay_postfix bash -c "MRELAY_POSTFIX_CERTBOT_FLAG=--force-renewal ./supervisord/certbot.sh"
+
 tunnel.run:
 	docker compose -f ./tunnel/docker-compose.yaml up --detach --build
 
@@ -47,6 +56,10 @@ tunnel.monitor.stop:
 
 tunnel.monitor.sh:
 	docker exec -it mrelay_tunnel_monitor /bin/bash
+
+tunnel.monitor.certs.check:
+	@ docker exec mrelay_tunnel_monitor bash -c "ls -l /etc/letsencrypt/live/\${MRELAY_POSTFIX_DOMAIN}/"
+	@ docker exec mrelay_tunnel_monitor bash -c "openssl s_client -connect \${MRELAY_POSTFIX_HOSTNAME}:443 -servername \${MRELAY_POSTFIX_HOSTNAME} 2>/dev/null < /dev/null | openssl x509 -text"
 
 build:
 	if ! docker buildx ls | grep multi-arch-builder; \
