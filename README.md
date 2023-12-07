@@ -11,7 +11,8 @@
   * The final destination is `mail.example.lan:25` mail server (SMTP).
 * Includes Realtime Blackhole List (RBL) rejection with Spamhaus.
 * Includes SPF verification and OpenDKIM signing/verification.
-* See references for more information on the last two points.
+* (Optional) Includes SSH reverse tunnel monitor Web endpoint.
+* See references for more information.
 
 ## Configuration (Remote and Local Servers)
 
@@ -42,7 +43,6 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 | MRELAY_TUNNEL_SSH_URL              | joe@mail.example.com                 | The SSH URL for the tunnel from the private local rely server.    |
 | MRELAY_TUNNEL_SSH_KEY              | ../id_rsa                            | The SSH private key file to connect to the public server          |
 | MRELAY_TUNNEL_FORWARD              | 10.10.10.10:1025:mail.example.lan:25 | The port forwarding configuration for the tunnel.                 |
-
 
 ## Configuration (Public Remote Server)
 
@@ -118,6 +118,11 @@ make tunnel.sh     # enter the shell inside the container
 make tunnel.stop   # stop the containers
 # make tunnel.run  # build and run in foreground (development)
 ```
+
+## Monitoring and Alerting
+
+You can use [Uptime Kuma](https://github.com/louislam/uptime-kuma)
+for monitoring the tunnel monitor HTTP endpoint and the postfix SMTP ports.
 
 # References
 
