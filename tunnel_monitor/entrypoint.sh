@@ -74,6 +74,7 @@ log "starting nginx..." \
     else
         log "ERROR" | tee /var/www/html/index.html
     fi
+    nginx -s reload  # just in case TLS certificates were renewed
     if ! pidof nginx > /dev/null; then
         log "nginx died, exiting in 60s..."
         sleep 60  # avoid fast restarts
