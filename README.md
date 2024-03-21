@@ -7,8 +7,15 @@
   * Internet (MTA) -> (StartTLS) `mail.example.com:25` -> Postfix (Linux/Docker).
   * Postfix -> if relayhost for relay_domains -> `10.10.10.10:1025`.
 * Local Private Mail Server (Final Destination):
-  * On `10.10.10.10:1025` -> SSH Reverse Tunnel (Linux/Docker) -> `mail.example.lan:25`.
-  * The final destination is `mail.example.lan:25` mail server (SMTP).
+  * SMTP `mail.example.lan:25` is the final destination mail server (SMTP).
+  * If you prefer SSH Reverse Tunnel:
+    * On `10.10.10.10:1025` -> SSH Reverse Tunnel (Linux/Docker) -> Local SMTP.
+    * The remote server can connect to the local server via SSH tunnel.
+    * DNS resolution for mail.example.lan is needed on the local server.
+  + If your prefer Tailscale VPN:
+    * On `10.10.10.10:1025` -> TailScale -> Client TailScale VPN -> Local SMTP.
+    * Both the remote and local can see each other via the TailScale VPN.
+    * The local server is reachable via the TailScale private IP address.
 * Includes Realtime Blackhole List (RBL) rejection with Spamhaus.
 * Includes SPF verification and OpenDKIM signing/verification.
 * (Optional) Includes SSH reverse tunnel monitor Web endpoint.
@@ -47,6 +54,8 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 ## Configuration (Public Remote Server)
 
 ### SSH Server Configuration
+
+>> **Note:** This is only needed if you are not using Tailscale VPN.
 
 In the public remote mail server, add the following 
 settings to the `/etc/sshd/sshd_config` file:
@@ -88,6 +97,8 @@ make postfix.certs.renew.force
 
 ### Tunnel Monitor Configuration
 
+>> **Note:** This is only needed if you are not using Tailscale VPN.
+
 ```bash	
 make tunnel.monitor.start   # start the tunnel monitor (TCP open/close)
 make tunnel.monitor.stop    # stop the tunnel monitor
@@ -110,6 +121,8 @@ make tunnel.monitor.certs.check
 
 ### Tunnel Client Configuration
 
+>> **Note:** This is only needed if you are not using Tailscale VPN.
+
 Then run the following command:
 
 ```bash
@@ -121,8 +134,8 @@ make tunnel.stop   # stop the containers
 
 ## Monitoring and Alerting
 
-You can use [Uptime Kuma](https://github.com/louislam/uptime-kuma)
-for monitoring the tunnel monitor HTTP endpoint and the postfix SMTP ports.
+You can use [Uptime Kuma](https://github.com/louislam/uptime-kuma) for
+monitoring the tunnel monitor HTTP endpoint and/or the postfix SMTP ports.
 
 # References
 
@@ -137,6 +150,11 @@ for monitoring the tunnel monitor HTTP endpoint and the postfix SMTP ports.
 
 * https://man.openbsd.org/ssh_config
 * https://man.openbsd.org/sshd_config
+
+## TailScale VPN
+
+* https://tailscale.com/kb/1151/what-is-tailscale
+* https://tailscale.com/kb/1031/install-linux
 
 ## Tackling E-Mail Spoofing and Phishing
 
