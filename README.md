@@ -25,6 +25,7 @@
 
 Download install the `mrelay` tool:
 ```bash
+apt install make git  # If you don't have it
 git clone https://github.com/olafrv/mrelay.git
 cd mrelay
 make install.docker  # If you don't have it (latest official version)
@@ -136,6 +137,15 @@ make tunnel.stop   # stop the containers
 
 You can use [Uptime Kuma](https://github.com/louislam/uptime-kuma) for
 monitoring the tunnel monitor HTTP endpoint and/or the postfix SMTP ports.
+
+## Development
+
+To build the Docker images locally, run the following command:
+
+```bash
+make build   # Build the Docker images locally x86_64 and arm64
+make push    # Push the Docker images to the registry
+```
 
 # References
 

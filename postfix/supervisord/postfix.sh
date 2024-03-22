@@ -176,6 +176,8 @@ then
     log "Postfix config OK"
     # Call "postfix stop" when signaled SIGTERM
     trap "{ log 'Stopping postfix'; /usr/sbin/postfix stop; exit 0; }" EXIT
+    # Set permissions (scan_dir_push: open directory defer: Permission denied)
+    postfix set-permissions
     # Start postfix in foreground mode
     /usr/sbin/postfix -c /etc/postfix start-fg
 else
