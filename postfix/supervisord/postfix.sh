@@ -174,10 +174,12 @@ log "Checking Postfix config..."
 if /usr/sbin/postfix check
 then
     log "Postfix config OK"
+    # Set permissions (scan_dir_push: open directory defer: Permission denied)
+    log "Setting Postfix permissions..."
+    # || true: Ignore chown for missing man files
+    postfix set-permissions || true
     # Call "postfix stop" when signaled SIGTERM
     trap "{ log 'Stopping postfix'; /usr/sbin/postfix stop; exit 0; }" EXIT
-    # Set permissions (scan_dir_push: open directory defer: Permission denied)
-    postfix set-permissions
     # Start postfix in foreground mode
     /usr/sbin/postfix -c /etc/postfix start-fg
 else
