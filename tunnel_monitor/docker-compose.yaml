@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   tunnel:
     image: ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest

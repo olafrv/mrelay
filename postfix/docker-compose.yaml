@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postfix:
     image: ${DOCKER_REGISTRY}/mrelay_postfix:latest
