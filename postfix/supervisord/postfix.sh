@@ -134,7 +134,7 @@ dmarc_transport unix - n n - - pipe flags=F
     user=opendmarc argv=/etc/postfix/dmarc_mail_save.sh
 EOF
 
-cat - >> /etc/postfix/dmarc_transport_map <<EOF
+cat - > /etc/postfix/dmarc_transport_map <<EOF
 dmarc@${MRELAY_POSTFIX_DOMAIN} dmarc_transport:
 EOF
 postmap /etc/postfix/dmarc_transport_map
