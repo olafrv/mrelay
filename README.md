@@ -28,7 +28,8 @@ Download install the `mrelay` tool:
 apt install make git  # If you don't have it
 git clone https://github.com/olafrv/mrelay.git
 cd mrelay
-make install.docker  # If you don't have it (latest official version)
+# If you don't have it (latest docker official version)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/olafrv/my_collections/refs/heads/main/scripts/bash/install-docker.sh)"
 ```
 
 ## Environment Variables
