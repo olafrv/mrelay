@@ -1,4 +1,4 @@
-FROM ubuntu:23.04 as base
+FROM ubuntu:23.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -13,7 +13,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-FROM base as opendmarc
+FROM base AS opendmarc
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -48,7 +48,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-FROM opendmarc as final
+FROM opendmarc AS final
 
 # Always lastest CA & TZ
 RUN apt-get update \
