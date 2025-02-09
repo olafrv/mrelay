@@ -23,6 +23,7 @@ certbot certonly ${MRELAY_POSTFIX_CERTBOT_FLAG} --no-self-upgrade \
   --dns-cloudflare-propagation-seconds ${MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT} \
   --noninteractive \
   --agree-tos \
+  --max-log-backups 14 \
   --deploy-hook "postfix reload"
 
 # Remove the Cloudflare DNS plugin credentials
