@@ -26,5 +26,6 @@ fi
 sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
 
 # Start supervisord and services
+rm /run/rsyslogd.pid
 mkdir -p /var/log/supervisord
 exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
