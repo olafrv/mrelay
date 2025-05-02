@@ -57,7 +57,7 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 
 ### SSH Server Configuration
 
->> **Note:** This is only needed if you are not using Tailscale VPN.
+> **Note:** This is only needed if you are not using Tailscale VPN.
 
 In the public remote mail server, add the following 
 settings to the `/etc/sshd/sshd_config` file:
@@ -99,7 +99,7 @@ make postfix.certs.renew.force
 
 ### Tunnel Monitor Configuration
 
->> **Note:** This is only needed if you are not using Tailscale VPN.
+> **Note:** This is only needed if you are not using Tailscale VPN.
 
 ```bash	
 make tunnel.monitor.start   # start the tunnel monitor (TCP open/close)
@@ -123,7 +123,7 @@ make tunnel.monitor.certs.check
 
 ### Tunnel Client Configuration
 
->> **Note:** This is only needed if you are not using Tailscale VPN.
+> **Note:** This is only needed if you are not using Tailscale VPN.
 
 Then run the following command:
 
