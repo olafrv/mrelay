@@ -43,14 +43,14 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 | MRELAY_POSTFIX_DOMAIN              | `example.com`                        | The domain name for the Postfix mail server.                      |
 | MRELAY_POSTFIX_HOSTNAME            | `mail.example.com`                   | The hostname (MX) for the Postfix mail server.                    |
 | MRELAY_POSTFIX_RELAYHOST           | `[mail.example.lan]:25` or empty     | The relay host of the Postfix mail server. Empty disables relay.  |
-| MRELAY_POSTFIX_CERTBOT_CF_API_KEY  | See *References* for deetails        | The Cloudflare API key for Certbot DNS authentication.            |
+| MRELAY_POSTFIX_CERTBOT_CF_API_KEY  | See *References* for details         | The Cloudflare API key for Certbot DNS authentication.            |
 | MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT | 30                                   | The wait time in seconds for Certbot DNS authentication.          |
 | MRELAY_POSTFIX_CERTBOT_EMAIL       | joe@example.com                      | The email address for Certbot cloudflare notifications.           |
 | MRELAY_POSTFIX_CERTBOT_FLAG        | e.g. `--dry-run` or empty            | Additional flags for Certbot.                                     |
 | MRELAY_POSTFIX_SPAMHAUS_KEY        | See *References* for details         | Spamhaus Data Query Service (DQS) key for RBL rejection.          |
 | MRELAY_POSTFIX_DKIM_SELECTOR       | e.g. `default`                       | DKIM selector for OpenDKIM signing/verification.                  |
 | MRELAY_TUNNEL_SSH_URL              | joe@mail.example.com                 | The SSH URL for the tunnel from the private local rely server.    |
-| MRELAY_TUNNEL_SSH_KEY              | ../id_rsa                            | The SSH private key file to connect to the public server          |
+| MRELAY_TUNNEL_SSH_KEY              | ../id_rsa                            | The SSH private key file to connect to the public server.         |
 | MRELAY_TUNNEL_FORWARD              | 10.10.10.10:1025:mail.example.lan:25 | The port forwarding configuration for the tunnel.                 |
 
 ## Configuration (Public Remote Server)
