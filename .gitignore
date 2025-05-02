@@ -6,6 +6,7 @@ mount/logs/**
 
 # Environment
 .env
+*.env
 
 # Backups
 *.tar
