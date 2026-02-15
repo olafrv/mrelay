@@ -63,7 +63,7 @@ RUN ln -snf "/usr/share/zoneinfo/${TZ}" \
 /etc/localtime && echo "${TZ}" > /etc/timezone
 
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
-COPY ./supervisord/postfix-main.conf /etc/postfix/main.cf
+COPY ./supervisord/postfix-main.conf /etc/postfix/postfix-main.conf
 RUN mkdir /supervisord
 COPY ./supervisord/*.sh /supervisord/
 RUN chmod +x /supervisord/*.sh

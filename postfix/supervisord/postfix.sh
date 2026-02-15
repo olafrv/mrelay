@@ -19,6 +19,9 @@ cp /etc/resolv.conf ${POSTFIX_CHROOT}/etc/resolv.conf
 
 log "Setting up Postfix..."
 
+# Overwrite main.cf with template postfix-main.cf
+cp /etc/postfix/postfix-main.cf /etc/postfix/main.cf
+
 # Set the hostname to the specified FQDN (gethostname() could be useless)
 postconf -e "MRELAY_POSTFIX_HOSTNAME=${MRELAY_POSTFIX_HOSTNAME}"
 postconf -e 'myhostname = $MRELAY_POSTFIX_HOSTNAME'
