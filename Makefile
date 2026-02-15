@@ -69,10 +69,10 @@ build:
 	# This is the way, build+push multi-arch images (amd64, arm64)
 	docker buildx build \
 		--build-arg "MRELAY_TIMEZONE=${MRELAY_TIMEZONE}" \
-		--push --platform linux/amd64,linux/arm64 \
+		--push --platform ${DOCKER_PLATFORM} \
 		-t ${DOCKER_REGISTRY}/mrelay_postfix:latest ./postfix
 	docker buildx build \
-		--push --platform linux/amd64,linux/arm64 \
+		--push --platform ${DOCKER_PLATFORM} \
 		-t ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest ./tunnel_monitor
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest

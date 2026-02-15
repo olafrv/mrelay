@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:trixie-slim
 
 # procps is for ps, pkill and kill commands
 RUN apt-get update && apt-get install -y openssh-client procps

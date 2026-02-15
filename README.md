@@ -9,13 +9,13 @@
 * Local Private Mail Server (Final Destination):
   * SMTP `mail.example.lan:25` is the final destination mail server (SMTP).
   * If you prefer SSH Reverse Tunnel:
-    * On `10.10.10.10:1025` -> SSH Reverse Tunnel (Linux/Docker) -> Local SMTP.
+    * From `10.10.10.10:1025` -> SSH Reverse Tunnel (Linux/Docker) -> Local SMTP.
     * The remote server can connect to the local server via SSH tunnel.
     * DNS resolution for mail.example.lan is needed on the local server.
   + If your prefer Tailscale VPN:
-    * On `10.10.10.10:1025` -> TailScale -> Client TailScale VPN -> Local SMTP.
-    * Both the remote and local can see each other via the TailScale VPN.
-    * The local server is reachable via the TailScale private IP address.
+    * Inside `10.10.10.10` via TailScale -> Client TailScale VPN -> Local SMTP.
+    * The remote server can connect to the local server via the TailScale VPN.
+    * The local server is reachable through its TailScale DNS or IP address.
 * Includes Realtime Blackhole List (RBL) rejection with Spamhaus.
 * Includes SPF verification and OpenDKIM signing/verification.
 * (Optional) Includes SSH reverse tunnel monitor Web endpoint.
@@ -38,6 +38,7 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 
 | Variable                           | Example Value                        | Description                                                       |
 |------------------------------------|--------------------------------------|-------------------------------------------------------------------|
+| DOCKER_PLATFORM                    | linux/amd64, linux/arm64             | The Docker platform to build the images for (e.g. linux/amd64).   |
 | DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
 | MRELAY_TIMEZONE                    | `Europe/Stockholm`                   | The timezone for the container.                                   |
 | MRELAY_POSTFIX_DOMAIN              | `example.com`                        | The domain name for the Postfix mail server.                      |

@@ -1,7 +1,7 @@
-FROM debian:buster-slim
+FROM debian:trixie-slim
 
 RUN apt-get update \
-    && apt-get install -y nginx openssl netcat procps \
+    && apt-get install -y nginx openssl netcat-openbsd procps \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
