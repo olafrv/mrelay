@@ -14,3 +14,7 @@ sudo swapon -s
 echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
 mount -a
 ```
+
+# AWS Request for Reverse DNS (PTR) Record for SES Dedicated IP
+
+https://repost.aws/questions/QUKR1nc2IyRXCUkjnacaw5EQ/request-for-reverse-dns-ptr-record-for-ses-dedicated-ip
