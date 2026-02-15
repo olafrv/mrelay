@@ -79,8 +79,11 @@ systemctl restart ssh       # or service ssh restart (apply previous changes)
 
 ### Postfix Server Configuration
 
-```bash	
+SupervisorD scripts are in `/supervisord/` and logs can be seen inside
+`/var/log/supervisor/` in the container, use `make postfix.sh` to enter
+inside the container.
 
+```bash	
 cd mrelay
 make postfix.start          # start the container
 make postfix.sh             # enter the shell inside the container
