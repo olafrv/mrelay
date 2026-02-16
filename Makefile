@@ -117,5 +117,5 @@ test:
 	bash ./postfix/test.sh
 
 install.docker:
-	bash ./install-docker.sh
-
+	# If you don't have it (latest docker official version)
+	bash -c "$(curl -fsSL https://raw.githubusercontent.com/olafrv/my_collections/refs/heads/main/scripts/bash/install-docker.sh)"

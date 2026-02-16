@@ -28,8 +28,7 @@ Download install the `mrelay` tool:
 apt install make git  # If you don't have it
 git clone https://github.com/olafrv/mrelay.git
 cd mrelay
-# If you don't have it (latest docker official version)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/olafrv/my_collections/refs/heads/main/scripts/bash/install-docker.sh)"
+make install.docker   # Install Docker and Docker Compose if you don't have it
 ```
 
 ## Environment Variables
@@ -150,6 +149,7 @@ To build the Docker images locally, run the following command:
 ```bash
 make build   # Build the Docker images locally x86_64 and arm64
 make push    # Push the Docker images to the registry
+make test    # Run tests for the Postfix mail server
 ```
 
 # References
