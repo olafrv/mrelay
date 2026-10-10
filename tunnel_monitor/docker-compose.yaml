@@ -8,6 +8,8 @@ services:
     ports:
       - 8443:443
     restart: always
+    # bash as PID 1 ignores SIGTERM; tini forwards it.
+    init: true
     env_file:
       - ../.env
     volumes:
