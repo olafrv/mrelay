@@ -47,6 +47,7 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 | MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT | 30                                   | The wait time in seconds for Certbot DNS authentication.          |
 | MRELAY_POSTFIX_CERTBOT_EMAIL       | joe@example.com                      | The email address for Certbot cloudflare notifications.           |
 | MRELAY_POSTFIX_CERTBOT_FLAG        | e.g. `--dry-run` or empty            | Additional flags for Certbot.                                     |
+| MRELAY_POSTFIX_CERTBOT_EXTRA_DOMAINS | e.g. `static.example.com` or empty | Additional space-separated domains for the same certificate. |
 | MRELAY_POSTFIX_SPAMHAUS_KEY        | See *References* for details         | Spamhaus Data Query Service (DQS) key for RBL rejection.          |
 | MRELAY_POSTFIX_DKIM_SELECTOR       | e.g. `default`                       | DKIM selector for OpenDKIM signing/verification.                  |
 | MRELAY_TUNNEL_SSH_URL              | joe@mail.example.com                 | The SSH URL for the tunnel from the private local rely server.    |

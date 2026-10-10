@@ -14,10 +14,16 @@ echo "dns_cloudflare_api_token=${MRELAY_POSTFIX_CERTBOT_CF_API_KEY}" \
 # Certbot will complain if permissions are too open
 chmod 600 /cloudflare.ini  
 
+# Additional space-separated domains (SANs) for the same certificate
+EXTRA_DOMAINS=""
+for d in ${MRELAY_POSTFIX_CERTBOT_EXTRA_DOMAINS}; do
+  EXTRA_DOMAINS="${EXTRA_DOMAINS} -d ${d}"
+done
+
 # Request new (or renew) the (existing) certificate
 certbot certonly ${MRELAY_POSTFIX_CERTBOT_FLAG} --no-self-upgrade \
   --cert-name "${MRELAY_POSTFIX_DOMAIN}" \
-  -d "${MRELAY_POSTFIX_DOMAIN}" -d "${MRELAY_POSTFIX_HOSTNAME}" \
+  -d "${MRELAY_POSTFIX_DOMAIN}" -d "${MRELAY_POSTFIX_HOSTNAME}" ${EXTRA_DOMAINS} \
   -m "${MRELAY_POSTFIX_CERTBOT_EMAIL}" \
   --dns-cloudflare --dns-cloudflare-credentials /cloudflare.ini \
   --dns-cloudflare-propagation-seconds ${MRELAY_POSTFIX_CERTBOT_CF_DNS_WAIT} \
