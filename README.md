@@ -33,13 +33,18 @@ make install.docker   # Install Docker and Docker Compose if you don't have it
 
 ## Environment Variables
 
-Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the variable content:
+Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the variable content.
+
+> **Recommended:** set `MRELAY_BUILD_LOCAL=1`. No prebuilt images are
+> published, so each server builds its images from its own checkout and the
+> running containers always match the code. After a `git pull`, run the
+> matching `make *.start` target again to rebuild and restart.
 
 | Variable                           | Example Value                        | Description                                                       |
 |------------------------------------|--------------------------------------|-------------------------------------------------------------------|
-| DOCKER_PLATFORM                    | linux/amd64, linux/arm64             | The Docker platform to build the images for (e.g. linux/amd64).   |
-| DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
-| MRELAY_BUILD_LOCAL                 | `1` or empty                         | `1` builds images from this repo; never pulls or pushes them.     |
+| DOCKER_PLATFORM                    | linux/amd64, linux/arm64             | Platforms for `make build` when not building locally.             |
+| DOCKER_REGISTRY                    | docker.io/olafrv                     | Image name prefix; also the registry used if not building locally. |
+| MRELAY_BUILD_LOCAL                 | `1` (recommended) or empty           | `1` builds images from this repo; never pulls or pushes them.     |
 | MRELAY_TIMEZONE                    | `Europe/Stockholm`                   | The timezone for the container.                                   |
 | MRELAY_POSTFIX_DOMAIN              | `example.com`                        | The domain name for the Postfix mail server.                      |
 | MRELAY_POSTFIX_HOSTNAME            | `mail.example.com`                   | The hostname (MX) for the Postfix mail server.                    |
@@ -146,13 +151,17 @@ monitoring the tunnel monitor HTTP endpoint and/or the postfix SMTP ports.
 
 ## Development
 
-To build the Docker images locally, run the following command:
+To build the Docker images, run the following command:
 
 ```bash
-make build   # Build the Docker images locally x86_64 and arm64
-make push    # Push the Docker images to the registry
+make build   # MRELAY_BUILD_LOCAL=1: build for this host only, no push
+             # otherwise: build for DOCKER_PLATFORM and push to DOCKER_REGISTRY
 make test    # Run tests for the Postfix mail server
 ```
+
+With `MRELAY_BUILD_LOCAL` empty, the `make *.start` targets pull the images
+from `DOCKER_REGISTRY` instead of building them. That needs an up-to-date
+image pushed there: an image older than the code will run the old code.
 
 # References
 
