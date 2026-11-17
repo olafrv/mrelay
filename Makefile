@@ -84,7 +84,8 @@ ifneq ($(BUILD_LOCAL),)
 	# Local only: build for this host's platform, no push
 	docker compose -f ./postfix/docker-compose.yaml build
 	docker compose -f ./tunnel_monitor/docker-compose.yaml build
-	docker compose -f ./tunnel/docker-compose.yaml build
+	# Plain docker build: compose rejects tunnel's key volume when the tunnel isn't configured
+	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 else
 	if ! docker buildx ls | grep multi-arch-builder; \
 	then \
