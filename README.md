@@ -39,6 +39,7 @@ Create the `.env` file `VARIABLE=VALUE` even if empty `VARIABLE=` with the varia
 |------------------------------------|--------------------------------------|-------------------------------------------------------------------|
 | DOCKER_PLATFORM                    | linux/amd64, linux/arm64             | The Docker platform to build the images for (e.g. linux/amd64).   |
 | DOCKER_REGISTRY                    | docker.io/olafrv                     | The Docker registry to pull the mrelay image from.                |
+| MRELAY_BUILD_LOCAL                 | `1` or empty                         | `1` builds images from this repo; never pulls or pushes them.     |
 | MRELAY_TIMEZONE                    | `Europe/Stockholm`                   | The timezone for the container.                                   |
 | MRELAY_POSTFIX_DOMAIN              | `example.com`                        | The domain name for the Postfix mail server.                      |
 | MRELAY_POSTFIX_HOSTNAME            | `mail.example.com`                   | The hostname (MX) for the Postfix mail server.                    |

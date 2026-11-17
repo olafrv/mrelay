@@ -1,20 +1,30 @@
 include .env
 export
 
+# MRELAY_BUILD_LOCAL=1 => images are built here from source, never pulled from
+# or pushed to DOCKER_REGISTRY (so the running code always matches this repo).
+BUILD_LOCAL := $(filter 1,$(MRELAY_BUILD_LOCAL))
+
 env:
 	@ env | grep -E "MRELAY_" || (echo "MRELAY_ variables not set." && exit 1)
 
 postfix.image:
+ifeq ($(BUILD_LOCAL),)
 	@ # https://github.com/docker/hub-feedback/issues/1925
 	@ docker buildx imagetools inspect \
 		${DOCKER_REGISTRY}/mrelay_postfix:latest | grep -B2 "Platform:.*linux"
+endif
 
 postfix.run:
 	docker compose -f ./postfix/docker-compose.yaml up --build --remove-orphans
 
 postfix.start: postfix.image
+ifeq ($(BUILD_LOCAL),)
 	docker pull ${DOCKER_REGISTRY}/mrelay_postfix:latest
 	docker compose -f ./postfix/docker-compose.yaml up --detach
+else
+	docker compose -f ./postfix/docker-compose.yaml up --detach --build
+endif
 
 postfix.stop:
 	docker compose -f ./postfix/docker-compose.yaml down
@@ -35,8 +45,12 @@ tunnel.run:
 	docker compose -f ./tunnel/docker-compose.yaml up --detach --build
 
 tunnel.start:
+ifeq ($(BUILD_LOCAL),)
 	docker pull ${DOCKER_REGISTRY}/mrelay_tunnel:latest
 	docker compose -f ./tunnel/docker-compose.yaml up -d
+else
+	docker compose -f ./tunnel/docker-compose.yaml up -d --build
+endif
 
 tunnel.stop:
 	docker compose -f ./tunnel/docker-compose.yaml down
@@ -48,8 +62,12 @@ tunnel.monitor.run:
 	docker compose -f ./tunnel_monitor/docker-compose.yaml up --detach --build
 
 tunnel.monitor.start:
+ifeq ($(BUILD_LOCAL),)
 	docker pull ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest
 	docker compose -f ./tunnel_monitor/docker-compose.yaml up --detach
+else
+	docker compose -f ./tunnel_monitor/docker-compose.yaml up --detach --build
+endif
 
 tunnel.monitor.stop:
 	docker compose -f ./tunnel_monitor/docker-compose.yaml down
@@ -62,6 +80,12 @@ tunnel.monitor.certs.check:
 	@ docker exec mrelay_tunnel_monitor bash -c "openssl s_client -connect \${MRELAY_POSTFIX_HOSTNAME}:443 -servername \${MRELAY_POSTFIX_HOSTNAME} 2>/dev/null < /dev/null | openssl x509 -text"
 
 build:
+ifneq ($(BUILD_LOCAL),)
+	# Local only: build for this host's platform, no push
+	docker compose -f ./postfix/docker-compose.yaml build
+	docker compose -f ./tunnel_monitor/docker-compose.yaml build
+	docker compose -f ./tunnel/docker-compose.yaml build
+else
 	if ! docker buildx ls | grep multi-arch-builder; \
 	then \
 		docker buildx create --name multi-arch-builder; \
@@ -76,6 +100,7 @@ build:
 		-t ${DOCKER_REGISTRY}/mrelay_tunnel_monitor:latest ./tunnel_monitor
 	docker build -t ${DOCKER_REGISTRY}/mrelay_tunnel:latest ./tunnel
 	docker push ${DOCKER_REGISTRY}/mrelay_tunnel:latest
+endif
 
 push: build
 
