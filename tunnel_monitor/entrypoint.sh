@@ -40,7 +40,7 @@ EOF
 cat - > /etc/nginx/sites-available/default <<EOF
 server {
     listen 443 ssl;
-    server_name ${MRELAY_POSTFIX_HOSTNAME} http2;
+    server_name ${MRELAY_POSTFIX_HOSTNAME};
 
     ssl_certificate /etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${MRELAY_POSTFIX_DOMAIN}/privkey.pem;
